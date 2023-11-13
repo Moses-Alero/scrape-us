@@ -19,7 +19,7 @@ type error interface {
 
 func main() {
 	fmt.Println("Hello, World!")
-	html, err := fetch("https://www.qurulab.com")
+	html, err := fetch("https://www.freepik.com/")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +72,8 @@ func tokenizer(r io.Reader, c chan map[string]string) {
 				break
 			}
 		}
-		text, val, err := tags.Anchor(tokens)
+
+		text, val, err := tagToScrape("img", tokens)
 		if err != nil {
 			continue
 		}
@@ -96,4 +97,14 @@ func writeToFile(s string) {
 	}
 
 	fmt.Println("File saved successfully")
+}
+
+func tagToScrape(tag string, token *html.Tokenizer) (string, string, error) {
+	switch tag {
+	case "a":
+		return tags.Anchor(token)
+	case "img":
+		return tags.Image(token)
+	}
+	return "", "", nil
 }
