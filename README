@@ -1,4 +1,4 @@
-##Scrape-Us: Scrape us daddy
+## Scrape-Us : Scrape us daddy
 
 TODOS
 
@@ -6,7 +6,7 @@ TODOS
 
 2. **HTML Parsing**: After fetching the webpage, the next step is to parse the HTML of the webpage.
 
-   - Use a library like `goquery` to parse the HTML.
+   - Do not Use a library like `goquery` to parse the HTML.
 
 3. **Data Extraction**: Once the HTML is parsed, you can then extract the data you need.
 
