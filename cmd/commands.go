@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"scrape-us/scraper"
 
@@ -36,13 +37,28 @@ var versionCmd = &cobra.Command{
 
 var scrapeCmd = &cobra.Command{
 	Use:   "scrape",
-	Short: "I put the scrape in scrap-us",
+	Short: "I put the scrape in scrape-us",
 	Long:  "This is the command used for scraping web pages",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("Error: URL to scrape required")
 		}
-		scraper.Scrape()
+		tag, err := cmd.Flags().GetString("tag")
+		if err != nil {
+			log.Fatal(err)
+		}
+		url := args[0]
+		fmt.Printf("%s : %s \n", tag, url)
+		var ext string
+		switch {
+		case ofJson:
+			ext = ".json"
+		case ofTxt:
+			ext = ".txt"
+		case ofCsv:
+			ext = ".csv"
+		}
+		scraper.Scrape(url, tag, ext)
 
 	},
 }

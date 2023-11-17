@@ -12,23 +12,20 @@ import (
 	"golang.org/x/net/html"
 )
 
-func Scrape() {
-	html, err := fetch("https://www.freepik.com/")
+var htmlTags = make(map[string][]string)
+
+func Scrape(url string, tag string, ext string) {
+	html, err := fetch(url)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	c := make(chan map[string]string)
 	reader := strings.NewReader(html)
-	go tokenizer(reader, c)
-	for {
-		val, open := <-c
-		if !open {
-			break
-		}
-
+	go tokenizer(reader, tag, c)
+	for val := range c {
 		for k, v := range val {
-			str := fmt.Sprintf("%s:%s \n,", k, v)
+			str := fmt.Sprintf("%s:%s \n", strings.TrimSpace(k), strings.TrimSpace(v))
 
 			go writeToFile(str)
 		}
@@ -53,21 +50,20 @@ func fetch(url string) (string, error) {
 
 }
 
-func tokenizer(r io.Reader, c chan map[string]string) {
+func tokenizer(r io.Reader, tag string, c chan map[string]string) {
 
 	tokens := html.NewTokenizer(r)
-	//  a := []map[string]string{}
+
 	for {
 		m := make(map[string]string)
 		token := tokens.Next()
 		if token == html.ErrorToken {
-			// emitToken(tokens.Token())
 			if tokens.Err() == io.EOF {
 				break
 			}
 		}
 
-		text, val, err := tagToScrape("img", tokens)
+		text, val, err := tagToScrape(tag, tokens)
 		if err != nil {
 			continue
 		}
@@ -78,7 +74,7 @@ func tokenizer(r io.Reader, c chan map[string]string) {
 }
 
 func writeToFile(s string) {
-	file, err := os.OpenFile("scrape-us.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("scrape-us.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -89,8 +85,6 @@ func writeToFile(s string) {
 		log.Fatal(err)
 		return
 	}
-
-	fmt.Println("File saved successfully")
 }
 
 func tagToScrape(tag string, token *html.Tokenizer) (string, string, error) {
@@ -99,7 +93,10 @@ func tagToScrape(tag string, token *html.Tokenizer) (string, string, error) {
 		return tags.Anchor(token)
 	case "img":
 		return tags.Image(token)
+	case "p", "big", "strong", "span":
+		return tags.TextFormatter(token, tag)
 	}
+
 	return "", "", nil
 
 }

@@ -15,10 +15,8 @@ func Anchor(t *html.Tokenizer) (string, string, error) {
 	switch token.Type {
 	case html.StartTagToken:
 		if token.Type == html.StartTagToken {
-			// fmt.Printf("This is a start token---> %s \n", token.Data)
 			if len(token.Attr) >= 1 {
-				attr := token.Attr
-				for _, val := range attr {
+				for _, val := range token.Attr {
 					if val.Key == "href" {
 						nextToken := t.Next()
 						if nextToken == html.TextToken {
@@ -39,8 +37,6 @@ func Image(t *html.Tokenizer) (string, string, error) {
 	switch token.Type {
 	case html.StartTagToken, html.SelfClosingTagToken:
 		if token.Type == html.SelfClosingTagToken {
-			// fmt.Printf("This is a start token---> %s \n", token.Data)
-			// fmt.Println(token.Data)
 			var src string
 			if token.Data == "img" {
 				if len(token.Attr) >= 1 {
